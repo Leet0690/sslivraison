@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSlivraison — Vos courses, livrées à Sidi Slimane</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#"><span class="brand-mark">S</span><span>SS<span>livraison</span></span></a>
+      <nav><a class="active" href="#commander">Commander</a><a href="#suivi">Suivre ma commande</a><a href="dashboard.html">Espace équipe</a></nav>
+      <button class="outline-btn" id="loginBtn">Se connecter</button>
+    </header>
+
+    <main>
+      <section class="hero" id="commander">
+        <div class="hero-copy"><p class="eyebrow">SIDI SLIMANE · RAPIDE · LOCAL</p><h1>Vos courses,<br><em>notre mission.</em></h1><p class="hero-text">Supermarché, marché, pharmacie, snack ou billets de train : dites-nous ce qu'il vous faut, on s'occupe du reste.</p><div class="trust"><span>✓ Livraison fixe à <strong>10 DH</strong></span><span>✓ Livreurs de confiance</span></div></div>
+        <div class="order-card"><div class="card-heading"><div><span class="step">ÉTAPE 1 SUR 2</span><h2>Que souhaitez-vous faire ?</h2></div><span class="price">10 <small>DH</small></span></div><div class="service-grid" id="serviceGrid"><button class="service selected" data-service="Courses"><span>🛒</span><b>Courses</b><small>Supermarché & marché</small></button><button class="service" data-service="Pharmacie"><span>💊</span><b>Pharmacie</b><small>Ordonnance ou produit</small></button><button class="service" data-service="Snack"><span>🍔</span><b>Snack</b><small>Votre repas préféré</small></button><button class="service" data-service="Billets"><span>🎫</span><b>Billets</b><small>Réservation de train</small></button></div><label for="details">Que faut-il faire ?</label><textarea id="details" placeholder="Ex. : Acheter 2 kg de pommes au marché... "></textarea><label for="address">Adresse de livraison</label><div class="input-wrap"><span>⌖</span><input id="address" placeholder="Quartier, rue, repère..." /></div><button class="primary-btn" id="orderBtn">Continuer <span>→</span></button><p class="secure">Paiement à la livraison · Service disponible à Sidi Slimane</p></div>
+      </section>
+
+      <section class="how" id="a-propos"><div><p class="eyebrow">COMMENT ÇA MARCHE</p><h2>Simple comme un message.</h2></div><div class="steps"><div><span>01</span><h3>Vous commandez</h3><p>Décrivez ce dont vous avez besoin et indiquez votre adresse.</p></div><div><span>02</span><h3>On s’en occupe</h3><p>Un livreur disponible accepte votre demande et fait vos courses.</p></div><div><span>03</span><h3>Vous êtes livré</h3><p>Suivez l’avancement et payez simplement 10 DH à la livraison.</p></div></div></section>
+
+      <section class="tracking" id="suivi"><div class="tracking-intro"><p class="eyebrow">SUIVI EN DIRECT</p><h2>Votre commande,<br>à portée de main.</h2><p>Une fois votre commande acceptée, vous pourrez voir son statut en temps réel et contacter votre livreur.</p><button class="outline-btn" id="demoBtn">Voir une commande démo <span>→</span></button></div><div class="track-card"><div class="track-top"><div><span class="status-dot"></span><b id="trackStatus">Commande en préparation</b><p id="trackSub">Votre livreur arrive bientôt</p></div><span class="order-id">#SS-1048</span></div><div class="progress"><span class="done"></span><span class="done"></span><span class="current"></span><span></span></div><div class="track-labels"><small>Reçue</small><small>Acceptée</small><small>En route</small><small>Livrée</small></div><div class="driver"><div class="avatar">YA</div><div><b>Yassine A.</b><p>Livreur SSlivraison</p></div><button aria-label="Appeler le livreur">☎</button></div></div></section>
+    </main>
+    <footer><a class="brand" href="#"><span class="brand-mark">S</span><span>SS<span>livraison</span></span></a><p>Le service de proximité de Sidi Slimane.</p><span>© 2026 SSlivraison</span></footer>
+    <div class="toast" id="toast"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
