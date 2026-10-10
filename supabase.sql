@@ -3,14 +3,14 @@ create extension if not exists "pgcrypto";
 do $$ begin create type order_status as enum ('pending','accepted','shopping','on_the_way','delivered','cancelled'); exception when duplicate_object then null; end $$;
 do $$ begin create type service_type as enum ('courses','pharmacie','snack','billets','autre'); exception when duplicate_object then null; end $$;
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   phone text,
   role text not null default 'customer' check (role in ('customer','driver','admin')),
   created_at timestamptz not null default now()
 );
-create table public.orders (
+create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null references public.profiles(id),
   driver_id uuid references public.profiles(id),
