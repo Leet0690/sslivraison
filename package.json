@@ -1,0 +1,14 @@
+{
+  "name": "sslivraison",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check shared.js && node --check app.js && node --check dashboard.js && node --check pwa.js && node --check sw.js",
+    "build": "npm run check && node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "happy-dom": "^20.14.6"
+  }
+}

@@ -1,4 +1,192 @@
-<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Espace équipe — SSlivraison</title><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script></head><body>
-<header><a class="brand" href="index.html"><span>S</span>SS<span>livraison</span></a><div><span id="connection">Hors ligne</span><button id="logout">Se déconnecter</button></div></header>
-<main><section id="loginPanel" class="panel login"><p class="eyebrow">ESPACE ÉQUIPE</p><h1>Gérer les commandes.</h1><p>Connectez-vous avec votre compte livreur ou administrateur.</p><input id="email" type="email" placeholder="Email professionnel"><input id="password" type="password" placeholder="Mot de passe"><button class="primary" id="login">Se connecter</button><small id="loginError"></small></section>
-<section id="appPanel" hidden><div class="heading"><div><p class="eyebrow">TABLEAU DE BORD</p><h1>Les commandes du jour</h1></div><button class="primary" id="refresh">↻ Actualiser</button></div><div class="stats"><div><small>En attente</small><b id="pendingCount">0</b></div><div><small>En cours</small><b id="activeCount">0</b></div><div><small>Livrées aujourd’hui</small><b id="doneCount">0</b></div></div><div class="location panel"><div><h2>Position du livreur</h2><p>Activez le partage GPS pendant vos tournées.</p></div><button class="primary" id="shareLocation">Partager ma position</button></div><div id="map"></div><div id="orders" class="orders"></div></section></main><div id="toast"></div><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="dashboard.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace équipe — SSlivraison</title>
+  <meta name="theme-color" content="#d63a1f" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+  <!-- ─── HEADER ─── -->
+  <header class="app-header fade-in">
+    <div class="header-container">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">S</span>
+        <span>SS<span class="brand-accent">livraison</span></span>
+      </a>
+      <div class="header-actions">
+        <div class="connection-status">
+          <span class="status-dot"></span>
+          <span id="connection">Espace équipe</span>
+        </div>
+        <button class="btn-text" data-install hidden>Installer l’app</button>
+        <button id="logout" class="btn-text" hidden>Se déconnecter</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- ═══════════════════════════════════════════
+         LOGIN PANEL
+    ═══════════════════════════════════════════ -->
+    <form id="loginPanel" class="panel auth-panel fade-in-up">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="eyebrow">ESPACE ÉQUIPE</span>
+          <h1>Gérer les commandes.</h1>
+          <p class="subtitle">Connectez-vous avec votre compte livreur ou administrateur.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email professionnel</label>
+          <input id="email" type="email" placeholder="nom@sslivraison.ma" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+
+        <small id="loginError" class="error-msg" aria-live="polite"></small>
+        <button class="btn-primary" id="login" type="submit">Se connecter</button>
+      </div>
+    </form>
+
+    <!-- ═══════════════════════════════════════════
+         APP PANEL (hidden by default)
+    ═══════════════════════════════════════════ -->
+    <section id="appPanel" hidden>
+
+      <!-- Dashboard Header -->
+      <div class="dashboard-header reveal">
+        <div class="title-group">
+          <span class="eyebrow" id="roleLabel">TABLEAU DE BORD</span>
+          <h1>Vos commandes</h1>
+          <p id="teamName"></p>
+        </div>
+        <button class="btn-icon" id="refresh" aria-label="Actualiser les commandes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.5l1.75 1.93"/>
+          </svg>
+        </button>
+      </div>
+
+      <p id="dashboardError" class="inline-message" role="alert" hidden></p>
+      <!-- Stats Grid -->
+      <div class="stats-grid reveal stagger-1">
+        <div class="stat-card">
+          <div class="stat-icon pending">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>En attente</h3>
+            <p class="stat-value" id="pendingCount">0</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon active">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>En cours</h3>
+            <p class="stat-value" id="activeCount">0</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon done">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>Livrées aujourd'hui</h3>
+            <p class="stat-value" id="doneCount">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid finance">
+        <div class="stat-card"><div class="stat-content"><h3>Achats livrés aujourd’hui</h3><p class="stat-value" id="purchasesToday">0 DH</p></div></div>
+        <div class="stat-card"><div class="stat-content"><h3>Frais de livraison aujourd’hui</h3><p class="stat-value" id="feesToday">0 DH</p></div></div>
+        <div class="stat-card"><div class="stat-content"><h3>Espèces encaissées aujourd’hui</h3><p class="stat-value" id="cashToday">0 DH</p></div></div>
+      </div>
+      <p class="small-note">Totaux des livraisons terminées aujourd’hui, heure du Maroc. Les anciennes livraisons sans date de clôture ne sont pas comptées.</p>
+      <section class="team-panel" id="driversPanel" hidden><h2>Vos livreurs</h2><div id="driversList"></div></section>
+
+      <!-- Location + Map -->
+      <div class="location-panel reveal stagger-2">
+        <div class="location-header">
+          <div>
+            <h2>Positions partagées</h2>
+            <p class="location-hint">Seuls les signaux de moins de 2 minutes sont affichés.</p>
+          </div>
+        </div>
+        <div id="gpsPanel" hidden>
+          <button class="btn-secondary" id="shareLocation" type="button">📍 Partager ma position</button>
+          <p id="gpsMessage" class="small-note" role="status">Une commande active est nécessaire. Gardez cette page ouverte : le GPS peut s’interrompre en arrière-plan.</p>
+        </div>
+        <div id="map" class="map-container"></div>
+      </div>
+
+      <!-- Orders -->
+      <div class="orders-panel reveal stagger-3">
+        <h2>Commandes</h2>
+        <div class="filters"><label for="statusFilter">Afficher</label><select id="statusFilter"><option value="active">À traiter / en cours</option><option value="all">Toutes</option><option value="pending">En attente</option><option value="accepted">Acceptées</option><option value="shopping">Achats en cours</option><option value="on_the_way">En livraison</option><option value="delivered">Livrées</option><option value="cancelled">Annulées</option></select></div>
+        <div id="orders" class="orders-container">
+          <!-- Orders injected by dashboard.js -->
+        </div>
+        <div class="pagination"><button id="previousPage" type="button" disabled>Précédent</button><span id="pageLabel" role="status"></span><button id="nextPage" type="button" disabled>Suivant</button></div>
+      </div>
+
+    </section>
+  </main>
+
+  <dialog id="actionDialog">
+    <form id="actionForm"><h2 id="actionTitle"></h2><p id="actionDescription"></p><div id="actionFields"></div><p id="actionError" class="inline-message" role="alert" hidden></p><div class="dialog-actions"><button id="closeAction" type="button">Fermer</button><button id="saveAction" type="submit" class="primary">Enregistrer</button></div></form>
+  </dialog>
+  <!-- ─── TOAST ─── -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- ─── SCRIPTS ─── -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="shared.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="pwa.js"></script>
+
+  <!-- ─── SCROLL REVEAL ─── -->
+  <script>
+    (() => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    })();
+  </script>
+
+</body>
+</html>

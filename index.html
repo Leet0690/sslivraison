@@ -1,35 +1,185 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SSlivraison — Vos courses, livrées à Sidi Slimane</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="#"><span class="brand-mark">S</span><span>SS<span>livraison</span></span></a>
-      <nav><a class="active" href="#commander">Commander</a><a href="#suivi">Suivre ma commande</a><a href="dashboard.html">Espace équipe</a></nav>
-      <button class="outline-btn" id="loginBtn">Se connecter</button>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSlivraison — Vos courses, livrées à Sidi Slimane</title>
+  <meta name="description" content="Service de livraison rapide à Sidi Slimane. Courses, pharmacie, snack ou billets de train livrés chez vous pour 10 DH." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#d63a1f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
 
-    <main>
-      <section class="hero" id="commander">
-        <div class="hero-copy"><p class="eyebrow">SIDI SLIMANE · RAPIDE · LOCAL</p><h1>Vos courses,<br><em>notre mission.</em></h1><p class="hero-text">Supermarché, marché, pharmacie, snack ou billets de train : dites-nous ce qu'il vous faut, on s'occupe du reste.</p><div class="trust"><span>✓ Livraison fixe à <strong>10 DH</strong></span><span>✓ Livreurs de confiance</span></div></div>
-        <div class="order-card"><div class="card-heading"><div><span class="step">ÉTAPE 1 SUR 2</span><h2>Que souhaitez-vous faire ?</h2></div><span class="price">10 <small>DH</small></span></div><div class="service-grid" id="serviceGrid"><button class="service selected" data-service="Courses"><span>🛒</span><b>Courses</b><small>Supermarché & marché</small></button><button class="service" data-service="Pharmacie"><span>💊</span><b>Pharmacie</b><small>Ordonnance ou produit</small></button><button class="service" data-service="Snack"><span>🍔</span><b>Snack</b><small>Votre repas préféré</small></button><button class="service" data-service="Billets"><span>🎫</span><b>Billets</b><small>Réservation de train</small></button></div><label for="details">Que faut-il faire ?</label><textarea id="details" placeholder="Ex. : Acheter 2 kg de pommes au marché... "></textarea><label for="address">Adresse de livraison</label><div class="input-wrap"><span>⌖</span><input id="address" placeholder="Quartier, rue, repère..." /></div><button class="primary-btn" id="orderBtn">Continuer <span>→</span></button><p class="secure">Paiement à la livraison · Service disponible à Sidi Slimane</p></div>
-      </section>
+  <!-- ─── ANIMATED BACKGROUND BLOBS ─── -->
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
 
-      <section class="how" id="a-propos"><div><p class="eyebrow">COMMENT ÇA MARCHE</p><h2>Simple comme un message.</h2></div><div class="steps"><div><span>01</span><h3>Vous commandez</h3><p>Décrivez ce dont vous avez besoin et indiquez votre adresse.</p></div><div><span>02</span><h3>On s’en occupe</h3><p>Un livreur disponible accepte votre demande et fait vos courses.</p></div><div><span>03</span><h3>Vous êtes livré</h3><p>Suivez l’avancement et payez simplement 10 DH à la livraison.</p></div></div></section>
+  <!-- ─── TOP BAR ─── -->
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">S</span>
+      <span>SS<span>livraison</span></span>
+    </a>
+    <nav>
+      <a class="active" href="#commander">Commander</a>
+      <a href="#suivi">Suivre ma commande</a>
+      <a href="dashboard.html">Espace équipe</a>
+    </nav>
+    <button class="outline-btn" data-install hidden>Installer l’app</button>
+  </header>
 
-      <section class="tracking" id="suivi"><div class="tracking-intro"><p class="eyebrow">SUIVI EN DIRECT</p><h2>Votre commande,<br>à portée de main.</h2><p>Une fois votre commande acceptée, vous pourrez voir son statut en temps réel et contacter votre livreur.</p><button class="outline-btn" id="demoBtn">Voir une commande démo <span>→</span></button></div><div class="track-card"><div class="track-top"><div><span class="status-dot"></span><b id="trackStatus">Commande en préparation</b><p id="trackSub">Votre livreur arrive bientôt</p></div><span class="order-id">#SS-1048</span></div><div class="progress"><span class="done"></span><span class="done"></span><span class="current"></span><span></span></div><div class="track-labels"><small>Reçue</small><small>Acceptée</small><small>En route</small><small>Livrée</small></div><div class="driver"><div class="avatar">YA</div><div><b>Yassine A.</b><p>Livreur SSlivraison</p></div><button aria-label="Appeler le livreur">☎</button></div></div></section>
-    </main>
-    <footer><a class="brand" href="#"><span class="brand-mark">S</span><span>SS<span>livraison</span></span></a><p>Le service de proximité de Sidi Slimane.</p><span>© 2026 SSlivraison</span></footer>
-    <div class="toast" id="toast"></div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="app.js"></script>
-  </body>
+  <main>
+
+    <!-- ═══════════════════════════════════════════
+         HERO SECTION
+    ═══════════════════════════════════════════ -->
+    <section class="hero" id="commander">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">
+          <span class="badge pulse-glow">🛵 Livraison locale</span>
+          SIDI SLIMANE · RAPIDE · LOCAL
+        </p>
+        <h1>
+          Vos courses,<br />
+          <em>notre mission.</em>
+        </h1>
+        <p class="hero-text">
+          Supermarché, marché, pharmacie, snack ou billets de train : dites-nous ce qu'il vous faut, on s'occupe du reste.
+        </p>
+        <div class="trust">
+          <span class="trust-pill">✓ Livraison fixe à <strong>10 DH</strong></span>
+          <span class="trust-pill">✓ Livreurs de confiance</span>
+        </div>
+
+        <!-- Floating delivery illustration -->
+        <div class="floating-icons" aria-hidden="true">
+          <span class="float-icon fi-1">🛵</span>
+          <span class="float-icon fi-2">📦</span>
+          <span class="float-icon fi-3">⚡</span>
+        </div>
+      </div>
+
+
+      <form class="order-card reveal reveal-delay-1" id="orderForm">
+        <div class="card-heading"><div><span class="step">VOTRE DEMANDE</span><h2>Que souhaitez-vous faire ?</h2></div><span class="price">10 <small>DH</small></span></div>
+        <div class="service-grid" id="serviceGrid" aria-label="Service">
+          <button type="button" class="service selected" data-service="courses" aria-pressed="true"><span class="service-icon">🛒</span><b>Courses</b><small>Supermarché & marché</small></button>
+          <button type="button" class="service" data-service="pharmacie" aria-pressed="false"><span class="service-icon">💊</span><b>Pharmacie</b><small>Votre demande</small></button>
+          <button type="button" class="service" data-service="snack" aria-pressed="false"><span class="service-icon">🍔</span><b>Snack</b><small>Votre repas préféré</small></button>
+          <button type="button" class="service" data-service="billets" aria-pressed="false"><span class="service-icon">🎫</span><b>Billets</b><small>Réservation de train</small></button>
+        </div>
+        <div id="shopFields" hidden><label for="shop">Nom du snack ou de la pharmacie</label><input id="shop" maxlength="150" placeholder="Nom de l’établissement"></div>
+        <fieldset id="trainFields" hidden disabled><legend>Votre trajet</legend>
+          <div class="form-grid"><div><label for="departure">Départ</label><input id="departure" required minlength="2" maxlength="100" value="Sidi Slimane"></div><div><label for="destination">Destination</label><input id="destination" required minlength="2" maxlength="100"></div></div>
+          <div class="form-grid"><div><label for="travelDate">Date</label><input id="travelDate" type="date" required></div><div><label for="passengers">Voyageurs</label><input id="passengers" type="number" min="1" max="10" value="1" required></div></div>
+        </fieldset>
+        <label for="details" id="detailsLabel">Liste des achats</label><textarea id="details" required minlength="3" maxlength="2000" placeholder="Votre demande…"></textarea>
+        <label for="budget">Budget maximum des achats (DH)</label><input id="budget" type="number" min="0" max="100000" step="0.01" required placeholder="Ex. : 100">
+        <small class="small-note">Hors livraison. Obligatoire pour les courses.</small>
+        <div class="form-grid"><div><label for="customerName">Votre nom</label><input id="customerName" autocomplete="name" required minlength="2" maxlength="100"></div><div><label for="phone">Téléphone</label><input id="phone" type="tel" autocomplete="tel" required maxlength="20" placeholder="06… ou +2126…"></div></div>
+        <label for="quarter">Quartier à Sidi Slimane</label><input id="quarter" required minlength="2" maxlength="100">
+        <label for="address">Adresse</label><input id="address" autocomplete="street-address" required minlength="5" maxlength="500" placeholder="Rue, immeuble, étage…">
+        <label for="landmark">Repère (facultatif)</label><input id="landmark" maxlength="200" placeholder="Près de…">
+        <p id="orderError" class="inline-message" role="alert" hidden></p>
+        <button class="primary-btn" id="orderBtn" type="submit">Vérifier ma commande →</button>
+        <p class="secure">Achats + 10 DH de livraison · Confirmation avant envoi</p>
+      </form>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         HOW IT WORKS
+    ═══════════════════════════════════════════ -->
+    <section class="how" id="a-propos">
+      <div class="reveal">
+        <p class="eyebrow">COMMENT ÇA MARCHE</p>
+        <h2>Simple comme<br />un message.</h2>
+      </div>
+      <div class="steps">
+        <div class="step-card reveal reveal-delay-1">
+          <span class="step-number">01</span>
+          <h3>Vous commandez</h3>
+          <p>Décrivez ce dont vous avez besoin et indiquez votre adresse.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <span class="step-number">02</span>
+          <h3>On s'en occupe</h3>
+          <p>Un livreur disponible accepte votre demande et fait vos courses.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-3">
+          <span class="step-number">03</span>
+          <h3>Vous êtes livré</h3>
+          <p>Suivez l’avancement et payez les achats + 10 DH de livraison.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         TRACKING SECTION
+    ═══════════════════════════════════════════ -->
+
+    <section class="tracking" id="suivi">
+      <div class="tracking-intro reveal">
+        <p class="eyebrow">VOS COMMANDES</p><h2>Suivez votre<br>livraison.</h2>
+        <p>Le statut et la position partagée par votre livreur s’actualisent ici.</p>
+        <p class="small-note">Vos commandes sont liées à ce navigateur. Conservez ses données pour retrouver le suivi.</p>
+        <button class="outline-btn" id="refreshOrders">Actualiser</button><div id="customerOrders" class="customer-orders"></div>
+        <button class="outline-btn" id="moreOrders" hidden>Voir les commandes précédentes</button>
+      </div>
+      <div class="track-card reveal reveal-delay-1">
+        <div id="trackingEmpty"><h3>Pas encore de commande</h3><p>Votre suivi apparaîtra après l’envoi de votre demande.</p></div>
+        <div id="trackingContent" hidden>
+          <div class="track-top"><div><b id="trackStatus"></b><p id="trackSub"></p></div><span class="order-id" id="trackId"></span></div>
+          <ol class="real-progress" id="trackProgress"></ol><p id="trackTotal"></p>
+          <div class="driver"><div class="avatar" id="driverAvatar">—</div><div><b id="driverName">En attente d’attribution</b><p id="driverInfo"></p></div><a id="callDriver" class="outline-btn" hidden>Appeler</a></div>
+          <div id="customerMap" class="tracking-map" hidden></div><p id="locationNote" class="small-note"></p>
+          <button class="outline-btn" id="cancelOrder" hidden>Annuler la demande</button>
+          <h3>Historique</h3><ul class="event-list" id="orderEvents"></ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <a class="brand" href="#">
+      <span class="brand-mark">S</span>
+      <span>SS<span>livraison</span></span>
+    </a>
+    <p>Le service de proximité de Sidi Slimane.</p>
+    <span>© 2026 SSlivraison</span>
+  </footer>
+
+  <dialog id="confirmDialog"><h2>Confirmer votre demande</h2><div id="orderSummary"></div><p>Les achats sont facturés séparément. Livraison : 10 DH.</p><p id="confirmError" class="inline-message" role="alert" hidden></p><div class="dialog-actions"><button class="outline-btn" id="editOrder" type="button">Modifier</button><button class="primary-btn" id="confirmOrder" type="button">Envoyer la commande</button></div></dialog>
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ─── SCRIPTS ─── -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="shared.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js"></script><script src="pwa.js"></script>
+
+  <!-- ─── SCROLL REVEAL OBSERVER ─── -->
+  <script>
+    (() => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    })();
+  </script>
+
+</body>
 </html>
